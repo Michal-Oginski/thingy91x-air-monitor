@@ -1,0 +1,8 @@
+description: |
+  ams iAQ-Core indoor air quality sensor module (CO2-eq / TVOC-eq).
+  Read-only I2C device at 0x5A, 100 kHz, needs clock stretching.
+  Never address it with the write bit (see the datasheet).
+
+compatible: "ams,iaq-core"
+
+include: i2c-device.yaml

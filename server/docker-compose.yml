@@ -1,0 +1,31 @@
+# O2 monitor stack for Akamai Cloud (Linode)
+# Mosquitto (MQTT broker) + Node-RED (dashboard + O2 alarm)
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: o2-mosquitto
+    restart: unless-stopped
+    ports:
+      - "8883:8883"          # TLS MQTT for the Thingy:91 X (public)
+      # 1883 is NOT published: only Node-RED uses it, inside the Docker network
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/certs:/mosquitto/certs:ro
+      - mosquitto-data:/mosquitto/data
+
+  nodered:
+    build: ./nodered
+    container_name: o2-nodered
+    restart: unless-stopped
+    environment:
+      - TZ=Africa/Johannesburg
+    ports:
+      - "127.0.0.1:1880:1880" # editor + dashboard, reach it through an SSH tunnel
+    volumes:
+      - ./nodered/data:/data
+    depends_on:
+      - mosquitto
+
+volumes:
+  mosquitto-data:

@@ -1,0 +1,233 @@
+menu "Air monitor"
+
+choice APP_SENSOR
+	prompt "Sensor"
+	default APP_SENSOR_IAQ_CORE
+
+config APP_SENSOR_IAQ_CORE
+	bool "ams iAQ-Core (CO2-eq / TVOC-eq, I2C) - demo"
+
+config APP_SENSOR_O2
+	bool "Analog O2 cell (ADS1115 or built-in ADC)"
+
+endchoice
+
+# ---- iAQ-Core ----
+
+config IAQ_MQTT_TOPIC
+	string "Publish topic for iAQ-Core readings"
+	default "sensors/thingy91x/iaq"
+
+config IAQ_READ_INTERVAL_S
+	int "Read interval (s): 11 for iAQ-Core P (pulsed), 1-11 for iAQ-Core C"
+	default 11
+	range 1 60
+
+config IAQ_PUBLISH_INTERVAL_S
+	int "Normal publish interval (s)"
+	default 30
+
+config IAQ_CO2_ALARM_PPM
+	int "Alarm when CO2-equivalent is at or above (ppm)"
+	default 1400
+
+config IAQ_CO2_CLEAR_PPM
+	int "Clear CO2 alarm below (ppm)"
+	default 1200
+
+config IAQ_TVOC_ALARM_PPB
+	int "Alarm when TVOC-equivalent is at or above (ppb)"
+	default 450
+
+config IAQ_TVOC_CLEAR_PPB
+	int "Clear TVOC alarm below (ppb)"
+	default 350
+
+config IAQ_ERROR_COUNT
+	int "Report a sensor fault after this many ERROR readings in a row"
+	default 5
+
+
+config O2_MQTT_HOST
+	string "MQTT broker hostname"
+	default "172-237-119-62.ip.linodeusercontent.com"
+
+config O2_MQTT_PORT
+	int "MQTT broker port (TLS)"
+	default 8883
+
+config O2_MQTT_USER
+	string "MQTT username"
+	default "thingy91x"
+
+config O2_MQTT_PASSWORD
+	string "MQTT password (set this in secrets.conf, never commit it)"
+	default ""
+
+config O2_MQTT_TOPIC
+	string "Publish topic"
+	default "sensors/thingy91x/o2"
+
+config O2_MQTT_CMD_TOPIC
+	string "Topic the board listens on for calibration commands"
+	default "sensors/thingy91x/cmd"
+
+config O2_MQTT_STATUS_TOPIC
+	string "Topic for calibration info and command results (retained)"
+	default "sensors/thingy91x/status"
+
+config O2_MQTT_KEEPALIVE_S
+	int "MQTT keepalive (s)"
+	default 120
+
+config O2_SEC_TAG
+	int "Modem security tag used for the broker CA certificate"
+	default 4242
+
+config O2_SAMPLE_INTERVAL_MS
+	int "ADC sample interval (ms)"
+	default 1000
+
+config O2_AVG_SAMPLES
+	int "Number of samples in the moving average"
+	default 10
+	range 1 64
+
+config O2_PUBLISH_INTERVAL_S
+	int "Normal publish interval (s)"
+	default 30
+
+config O2_ALARM_LEVEL_X100
+	int "Local alarm below this O2 level (% x100, 1950 = 19.50 %)"
+	default 1950
+
+config O2_RECOVER_LEVEL_X100
+	int "Clear local alarm above this O2 level (% x100)"
+	default 2000
+
+# ---- Sensor values from the datasheet (all in microvolts at the ADC input) ----
+
+config O2_AIR_NOMINAL_UV
+	int "Nominal sensor output in air (20.9 % O2), used until calibrated"
+	default 10000
+	help
+	  Typical output from the datasheet. Example: a galvanic cell
+	  specified as 9-13 mV in air -> use 11000.
+
+config O2_AIR_MIN_UV
+	int "Minimum acceptable output in air (calibration rejected below)"
+	default 7000
+
+config O2_AIR_MAX_UV
+	int "Maximum acceptable output in air (calibration rejected above)"
+	default 16000
+
+config O2_ZERO_OFFSET_UV
+	int "Sensor output at 0 % O2 (offset) from the datasheet"
+	default 0
+
+config O2_SENSOR_FAULT_UV
+	int "Readings below this are treated as a disconnected/failed sensor"
+	default 500
+
+# ---- Calibration ----
+
+config O2_ZERO_MAX_UV
+	int "Maximum acceptable sensor output in 0 % O2 (nitrogen) from the datasheet"
+	default 1000
+	help
+	  A zero calibration giving more than this is rejected.
+
+config O2_CAL_HOLD_MS
+	int "Hold the button this long for an air calibration (ms)"
+	default 3000
+
+config O2_CAL_RESET_HOLD_MS
+	int "Hold the button this long to reset calibration to datasheet values (ms)"
+	default 10000
+
+config O2_CAL_DURATION_S
+	int "Measurement time for air / span gas calibration (s)"
+	default 20
+
+config O2_ZERO_CAL_DURATION_S
+	int "Measurement time for zero (nitrogen) calibration (s)"
+	default 30
+
+config O2_CAL_STABLE_UV
+	int "Max allowed spread during the 2nd half of a calibration (uV)"
+	default 200
+	help
+	  If the reading is still drifting by more than this, the calibration
+	  is rejected as "not stable" - wait longer and try again.
+
+config O2_CAL_INTERVAL_DAYS
+	int "Calibration due after this many days (0 = never)"
+	default 30
+
+config O2_HEALTH_WARN_PCT
+	int "Warn when sensor output drops below this % of the datasheet nominal"
+	default 70
+
+# ---- Compensation (uses the Thingy:91 X's built-in BME688) ----
+
+config O2_PRESSURE_COMP
+	bool "Compensate for barometric pressure changes since calibration"
+	default y
+	help
+	  Galvanic O2 cells measure oxygen partial pressure. The reading is
+	  scaled by (pressure at calibration / current pressure).
+
+config O2_TEMP_COEFF_PPM_C
+	int "Sensor temperature coefficient (ppm of reading per degC, 0 = off)"
+	default 0
+	help
+	  Only for sensors WITHOUT internal temperature compensation. Take the
+	  value from the datasheet, e.g. 2.5 %/degC -> 25000. Note the BME688
+	  sits inside the Thingy enclosure, so it reads warmer than outside air.
+
+config O2_ENV_INTERVAL_S
+	int "How often to read pressure/temperature (s)"
+	default 10
+
+# ---- GNSS ----
+
+config O2_GNSS_INTERVAL_S
+	int "Interval between GNSS fixes (s)"
+	default 600
+	range 0 65535
+	help
+	  0 = single fix at start-up only. Default 10 minutes (demo).
+	  For battery use, 3600 (1 h) or 14400 (4 h) is better.
+
+config APP_FIXED_LAT
+	string "Manual location: latitude (decimal degrees, e.g. -26.107600), empty = off"
+	default ""
+
+config APP_FIXED_LON
+	string "Manual location: longitude (decimal degrees, e.g. 28.056700)"
+	default ""
+
+config APP_FIXED_LOCATION_ALWAYS
+	bool "Don't run GNSS/Wi-Fi/cell location at all (manual location only)"
+	default n
+	help
+	  A manual location (serial command "loc set", or the values above)
+	  always overrides GNSS/Wi-Fi/cell. Set this to y to also stop the
+	  automatic location requests completely.
+
+config APP_LOCATION_WIFI_FIRST
+	bool "Try Wi-Fi before GNSS (best indoors)"
+	default y
+	help
+	  y: Wi-Fi -> GNSS -> cell. Fast, works indoors, about 10-50 m.
+	  n: GNSS -> Wi-Fi -> cell. Most accurate outdoors, but each failed GNSS
+	     attempt indoors waits for the GNSS timeout first.
+
+config O2_GNSS_TIMEOUT_S
+	int "Give up on a GNSS fix after (s)"
+	default 300
+
+endmenu
+
+source "Kconfig.zephyr"

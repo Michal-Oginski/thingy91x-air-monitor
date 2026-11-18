@@ -1,0 +1,9 @@
+# The board publishes its own data/status and receives calibration commands
+user thingy91x
+topic write sensors/thingy91x/#
+topic read sensors/thingy91x/cmd
+
+# Node-RED reads all sensor data and sends calibration commands
+user nodered
+topic read sensors/#
+topic write sensors/+/cmd
