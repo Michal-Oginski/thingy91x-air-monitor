@@ -1,621 +1,598 @@
 [
-  {
-    "id": "broker",
-    "type": "mqtt-broker",
-    "name": "Local Mosquitto",
-    "broker": "mosquitto",
-    "port": "1883",
-    "clientid": "nodered-env",
-    "autoConnect": true,
-    "usetls": false,
-    "protocolVersion": "4",
-    "keepalive": "60",
-    "cleansession": true,
-    "birthTopic": "",
-    "birthQos": "0",
-    "birthPayload": "",
-    "birthMsg": {},
-    "closeTopic": "",
-    "closeQos": "0",
-    "closePayload": "",
-    "closeMsg": {},
-    "willTopic": "",
-    "willQos": "0",
-    "willPayload": "",
-    "willMsg": {},
-    "userProps": "",
-    "sessionExpiry": ""
-  },
-  {
-    "id": "o2_ui_base",
-    "type": "ui_base",
-    "theme": {
-      "name": "theme-dark",
-      "lightTheme": {
-        "default": "#0094CE",
-        "baseColor": "#0094CE",
-        "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
-        "edited": false
-      },
-      "darkTheme": {
-        "default": "#42a5f5",
-        "baseColor": "#42a5f5",
-        "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
-        "edited": true,
-        "reset": false
-      },
-      "customTheme": {
-        "name": "Untitled Theme 1",
-        "default": "#4B7930",
-        "baseColor": "#4B7930",
-        "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
-        "reset": false
-      },
-      "themeState": {
-        "base-color": {
-          "default": "#42a5f5",
-          "value": "#42a5f5",
-          "edited": true
-        },
-        "page-titlebar-backgroundColor": {
-          "value": "#000000",
-          "edited": true
-        },
-        "page-backgroundColor": {
-          "value": "#000000",
-          "edited": true
-        },
-        "page-sidebar-backgroundColor": {
-          "value": "#111111",
-          "edited": true
-        },
-        "group-textColor": {
-          "value": "#42a5f5",
-          "edited": true
-        },
-        "group-borderColor": {
-          "value": "#222222",
-          "edited": true
-        },
-        "group-backgroundColor": {
-          "value": "#0b0b0b",
-          "edited": true
-        },
-        "widget-textColor": {
-          "value": "#eeeeee",
-          "edited": true
-        },
-        "widget-backgroundColor": {
-          "value": "#42a5f5",
-          "edited": true
-        },
-        "widget-borderColor": {
-          "value": "#222222",
-          "edited": true
-        },
-        "base-font": {
-          "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
-        }
-      },
-      "angularTheme": {
-        "primary": "indigo",
-        "accents": "blue",
-        "warn": "red",
-        "background": "grey",
-        "palette": "dark"
-      }
+    {
+        "id": "tab_env",
+        "type": "tab",
+        "label": "Onboard Environment",
+        "disabled": false,
+        "info": "Thingy:91 X onboard BME688 measurements and location."
     },
-    "site": {
-      "name": "Thingy:91 X Air Monitor",
-      "hideToolbar": "false",
-      "allowSwipe": "false",
-      "lockMenu": "false",
-      "allowTempTheme": "true",
-      "dateFormat": "DD/MM/YYYY",
-      "sizes": {
-        "sx": 48,
-        "sy": 48,
-        "gx": 6,
-        "gy": 6,
-        "cx": 6,
-        "cy": 6,
-        "px": 0,
-        "py": 0
-      }
+    {
+        "id": "broker",
+        "type": "mqtt-broker",
+        "name": "Local Mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "nodered-env",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "o2_ui_base",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-dark",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "darkTheme": {
+                "default": "#38bdf8",
+                "baseColor": "#38bdf8",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "reset": false
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#38bdf8",
+                    "value": "#38bdf8",
+                    "edited": true
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#000000",
+                    "edited": true
+                },
+                "page-backgroundColor": {
+                    "value": "#000000",
+                    "edited": true
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#111a24",
+                    "edited": true
+                },
+                "group-textColor": {
+                    "value": "#e2e8f0",
+                    "edited": true
+                },
+                "group-borderColor": {
+                    "value": "#000000",
+                    "edited": true
+                },
+                "group-backgroundColor": {
+                    "value": "#000000",
+                    "edited": true
+                },
+                "widget-textColor": {
+                    "value": "#e8eef5",
+                    "edited": true
+                },
+                "widget-backgroundColor": {
+                    "value": "#17232d",
+                    "edited": true
+                },
+                "widget-borderColor": {
+                    "value": "#263545",
+                    "edited": true
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "cyan",
+                "warn": "red",
+                "background": "grey",
+                "palette": "dark"
+            }
+        },
+        "site": {
+            "name": "THINGY:91 X Enviroment Monitor",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "YYYY-MM-DD",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "iaq_dash_tab",
+        "type": "ui_tab",
+        "name": "Environment Monitor",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "iaq_grp",
+        "type": "ui_group",
+        "name": "Environment telemetry",
+        "tab": "iaq_dash_tab",
+        "order": 1,
+        "disp": false,
+        "width": "16",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "iaq_map_grp",
+        "type": "ui_group",
+        "name": "Device location",
+        "tab": "iaq_dash_tab",
+        "order": 2,
+        "disp": true,
+        "width": "16",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "env_in",
+        "type": "mqtt in",
+        "z": "tab_env",
+        "name": "Thingy:91 X onboard environment",
+        "topic": "sensors/+/env",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "env_fn",
+                "env_watchdog",
+                "env_debug"
+            ]
+        ]
+    },
+    {
+        "id": "env_fn",
+        "type": "function",
+        "z": "tab_env",
+        "name": "BME688 readings and location",
+        "func": "const p = msg.payload;\nif (!p || typeof p !== \"object\") {\n    node.warn(\"Invalid environment payload\");\n    return null;\n}\n\nconst device = (msg.topic || \"\").split(\"/\")[1] || \"thingy91x\";\nconst when = new Date().toLocaleString(\"en-GB\", { timeZone: \"Europe/Warsaw\" });\nconst temperature = Number(p.temperature);\nconst pressure = Number(p.pressure);\nconst humidity = Number(p.humidity);\nconst gasResistance = Number(p.gas_resistance);\n\nif (p.status !== \"ok\" || ![temperature, pressure, humidity, gasResistance].every(Number.isFinite)) {\n    const reason = p.status && p.status !== \"ok\" ? p.status : \"invalid sensor values\";\n    node.status({ fill: \"red\", shape: \"ring\", text: reason });\n    return [null, null, null, null, {\n        payload: { online: true, sensorStatus: reason, updated: when }\n    }, null, null];\n}\n\nconst lat = Number(p.lat);\nconst lon = Number(p.lon);\nconst sources = { manual: \"Manual\", wifi: \"Wi-Fi\", gnss: \"GPS\", cell: \"Cell towers\" };\nif (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {\n    flow.set(\"loc_\" + device, {\n        lat,\n        lon,\n        acc: Number(p.acc) || null,\n        time: when,\n        src: sources[p.loc] || \"GPS\"\n    });\n}\n\nconst loc = flow.get(\"loc_\" + device);\nconst marker = loc ? { payload: {\n    name: device,\n    lat: loc.lat,\n    lon: loc.lon,\n    accuracy: loc.acc || undefined,\n    icon: \"fa-cloud\",\n    iconColor: \"blue\",\n    label: `${device}: ${temperature.toFixed(1)} C`,\n    temperature: `${temperature.toFixed(2)} C`,\n    pressure: `${pressure.toFixed(2)} kPa`,\n    humidity: `${humidity.toFixed(1)} %`,\n    gas_resistance: `${gasResistance.toFixed(0)} ohm`,\n    status: \"OK\",\n    location: loc.src,\n    last_fix: loc.time,\n    fix_age: p.fix_age\n} } : null;\n\nif (marker) flow.set(\"last_marker\", marker.payload);\nconst mapMsgs = marker ? [\n    marker,\n    { payload: { command: { lat: loc.lat, lon: loc.lon, zoom: 16 } } }\n] : null;\n\nnode.status({ fill: \"green\", shape: \"dot\", text: `${temperature.toFixed(1)} C / ${humidity.toFixed(0)} %` });\nreturn [\n    { payload: temperature, topic: \"Temperature\" },\n    { payload: pressure, topic: \"Pressure\" },\n    { payload: humidity, topic: \"Humidity\" },\n    {\n        payload: gasResistance,\n        display: gasResistance >= 1000 ? `${(gasResistance / 1000).toFixed(1)}k` : gasResistance.toFixed(0),\n        topic: \"Gas resistance\"\n    },\n    { payload: { online: true, sensorStatus: \"ok\", updated: when } },\n    mapMsgs,\n    { payload: loc ? { source: loc.src === \"Cell towers\" ? \"Cell\" : loc.src, coordinates: `${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}` } : null }\n];",
+        "outputs": 7,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 160,
+        "wires": [
+            [
+                "env_temperature",
+                "env_temperature_chart"
+            ],
+            [
+                "env_pressure"
+            ],
+            [
+                "env_humidity"
+            ],
+            [
+                "env_gas_resistance"
+            ],
+            [
+                "env_status"
+            ],
+            [
+                "sensor_map"
+            ],
+            [
+                "env_location_status"
+            ]
+        ],
+        "outputLabels": [
+            "Temperature",
+            "Pressure",
+            "Humidity",
+            "Gas resistance",
+            "Device status",
+            "Map marker",
+            "Location status"
+        ]
+    },
+    {
+        "id": "env_status",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Device header and connection status",
+        "order": 1,
+        "width": 16,
+        "height": 2,
+        "format": "<div style=\"box-sizing:border-box;width:100%;min-height:54px;padding:2px 4px 8px;display:flex;align-items:flex-start;justify-content:space-between;font-family:inherit;color:#e8eef5;\">\n  <div>\n    <div style=\"font-size:20px;font-weight:700;letter-spacing:.3px;\">THINGY:91 X</div>\n    <div style=\"margin-top:5px;font-size:14px;color:#aab8c5;letter-spacing:.35px;\">ENVIRONMENT MONITOR · LIVE TELEMETRY</div>\n    <div ng-if=\"msg.payload && msg.payload.updated\" style=\"margin-top:3px;font-size:13px;color:#73879a;\">Last update: {{msg.payload.updated}}</div>\n    <div ng-if=\"msg.payload && msg.payload.message\" style=\"margin-top:3px;font-size:14px;color:#fca5a5;\">{{msg.payload.message}}</div>\n    <div ng-if=\"msg.payload && msg.payload.sensorStatus && msg.payload.sensorStatus !== 'ok' && msg.payload.sensorStatus !== 'offline'\" style=\"margin-top:3px;font-size:14px;color:#fbbf24;\">BME688: {{msg.payload.sensorStatus}}</div>\n  </div>\n  <div ng-class=\"(msg.payload && msg.payload.online) ? 'online-badge online' : 'online-badge offline'\" style=\"display:flex;align-items:center;gap:6px;margin-top:1px;padding:4px 9px;border-radius:12px;font-size:14px;font-weight:700;\">\n    <span style=\"width:7px;height:7px;border-radius:50%;background:currentColor;\"></span>\n    {{msg.payload && msg.payload.online ? 'ONLINE' : 'OFFLINE'}}\n  </div>\n</div>\n<style>\n.online-badge.online{color:#22c55e;background:rgba(34,197,94,.12)}\n.online-badge.offline{color:#ef4444;background:rgba(239,68,68,.12)}\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "telemetry-header",
+        "x": 930,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_temperature",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Temperature",
+        "order": 2,
+        "width": 8,
+        "height": 3,
+        "format": "<div style=\"height:100%;min-height:98px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:11px 13px;border:1px solid #263545;border-radius:12px;background:#1d2932;color:#e8eef5;font-family:inherit;\">\n  <div style=\"display:flex;align-items:center;justify-content:space-between;color:#f59e0b;font-size:14px;font-weight:700;letter-spacing:.35px;\">\n    <span style=\"display:flex;align-items:center;\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 14.76V5a3 3 0 0 0-6 0v9.76a5 5 0 1 0 6 0Z\"/><path d=\"M11 11v7\"/></svg></span><span>TEMPERATURE</span>\n  </div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"margin-top:7px;color:#f8fafc;font-size:30px;font-weight:700;line-height:1.05;\">{{msg.payload | number:1}}°</div>\n  <div style=\"margin-top:4px;color:#aab8c5;font-size:14px;\">Celsius</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"margin-top:8px;color:#9fb0c0;font-size:15px;\">Waiting for data...</div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "telemetry-metric",
+        "x": 730,
+        "y": 20,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_pressure",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Pressure",
+        "order": 5,
+        "width": 8,
+        "height": 3,
+        "format": "<div style=\"height:100%;min-height:98px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:11px 13px;border:1px solid #263545;border-radius:12px;background:#1d2932;color:#e8eef5;font-family:inherit;\">\n  <div style=\"display:flex;align-items:center;justify-content:space-between;color:#a78bfa;font-size:14px;font-weight:700;letter-spacing:.35px;\">\n    <span style=\"display:flex;align-items:center;\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 19a9 9 0 1 1 16 0\"/><path d=\"m12 13 4-4\"/><path d=\"M7 19h10\"/></svg></span><span>PRESSURE</span>\n  </div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"margin-top:7px;color:#f8fafc;font-size:30px;font-weight:700;line-height:1.05;\">{{msg.payload | number:1}}</div>\n  <div style=\"margin-top:4px;color:#aab8c5;font-size:14px;\">kPa</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"margin-top:8px;color:#9fb0c0;font-size:15px;\">Waiting for data...</div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "telemetry-metric",
+        "x": 720,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_humidity",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Humidity",
+        "order": 3,
+        "width": 8,
+        "height": 3,
+        "format": "<div style=\"height:100%;min-height:98px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:11px 13px;border:1px solid #263545;border-radius:12px;background:#1d2932;color:#e8eef5;font-family:inherit;\">\n  <div style=\"display:flex;align-items:center;justify-content:space-between;color:#38bdf8;font-size:14px;font-weight:700;letter-spacing:.35px;\">\n    <span style=\"display:flex;align-items:center;\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3.5S5 11 5 15a7 7 0 0 0 14 0c0-4-7-11.5-7-11.5Z\"/><path d=\"M9 16a3 3 0 0 0 3 3\"/></svg></span><span>HUMIDITY</span>\n  </div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"margin-top:7px;color:#f8fafc;font-size:30px;font-weight:700;line-height:1.05;\">{{msg.payload | number:1}}%</div>\n  <div style=\"margin-top:4px;color:#aab8c5;font-size:14px;\">Relative humidity</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"margin-top:8px;color:#9fb0c0;font-size:15px;\">Waiting for data...</div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "telemetry-metric",
+        "x": 720,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_gas_resistance",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Gas resistance",
+        "order": 4,
+        "width": 8,
+        "height": 3,
+        "format": "<div style=\"height:100%;min-height:98px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:11px 13px;border:1px solid #263545;border-radius:12px;background:#1d2932;color:#e8eef5;font-family:inherit;\">\n  <div style=\"display:flex;align-items:center;justify-content:space-between;color:#34d399;font-size:14px;font-weight:700;letter-spacing:.35px;\">\n    <span style=\"display:flex;align-items:center;\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"3\"/><path d=\"m8 14 3-4 2 4 3-4\"/></svg></span><span>GAS RESISTANCE</span>\n  </div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"margin-top:7px;color:#f8fafc;font-size:30px;font-weight:700;line-height:1.05;\">{{msg.display}}</div>\n  <div style=\"margin-top:4px;color:#aab8c5;font-size:14px;\">Ohm</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"margin-top:8px;color:#9fb0c0;font-size:15px;\">Waiting for data...</div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "telemetry-metric",
+        "x": 740,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_temperature_chart",
+        "type": "ui_chart",
+        "z": "tab_env",
+        "name": "Temperature history",
+        "group": "iaq_grp",
+        "order": 7,
+        "width": 16,
+        "height": 6,
+        "label": "",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "Waiting for data...",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "24",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": true,
+        "useUTC": false,
+        "colors": [
+            "#38bdf8",
+            "#64748b",
+            "#64748b",
+            "#64748b",
+            "#64748b",
+            "#64748b",
+            "#64748b",
+            "#64748b",
+            "#64748b"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "telemetry-chart",
+        "x": 760,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_watchdog",
+        "type": "trigger",
+        "z": "tab_env",
+        "name": "No environment data for 10 min",
+        "op1": "",
+        "op2": "offline",
+        "op1type": "nul",
+        "op2type": "str",
+        "duration": "10",
+        "extend": true,
+        "overrideDelay": false,
+        "units": "min",
+        "reset": "",
+        "bytopic": "topic",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 250,
+        "y": 320,
+        "wires": [
+            [
+                "env_offline_fn"
+            ]
+        ]
+    },
+    {
+        "id": "env_offline_fn",
+        "type": "function",
+        "z": "tab_env",
+        "name": "Device offline status",
+        "func": "const when = new Date().toLocaleString(\"en-GB\", { timeZone: \"Europe/Warsaw\" });\nmsg.payload = {\n    online: false,\n    sensorStatus: \"offline\",\n    updated: when,\n    message: \"No BME688 telemetry received for 10 minutes\"\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 260,
+        "wires": [
+            [
+                "env_status"
+            ]
+        ]
+    },
+    {
+        "id": "env_debug",
+        "type": "debug",
+        "z": "tab_env",
+        "name": "Raw environment data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "sensor_map",
+        "type": "worldmap",
+        "z": "tab_env",
+        "name": "Thingy:91 X location",
+        "lat": "52.198671",
+        "lon": "21.047436",
+        "zoom": "12",
+        "layer": "EsriS",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "true",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "false",
+        "coords": "none",
+        "showgrid": "false",
+        "showruler": "false",
+        "allowFileDrop": "false",
+        "path": "/worldmap",
+        "overlist": "DR,CO,RA,DN",
+        "maplist": "OSMG,OSMC,EsriC,EsriS,UKOS",
+        "mapname": "",
+        "mapurl": "",
+        "mapopt": "",
+        "mapwms": false,
+        "x": 840,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "env_map_ui",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_map_grp",
+        "name": "Environment map",
+        "order": 2,
+        "width": 16,
+        "height": 15,
+        "format": "<iframe src=\"/worldmap\" style=\"width:100%;height:100%;border:0;border-radius:10px;background:#111c27;display:block;\" loading=\"lazy\"></iframe>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 830,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "map_events",
+        "type": "worldmap in",
+        "z": "tab_env",
+        "name": "Map opened",
+        "path": "/worldmap",
+        "events": "connect",
+        "x": 140,
+        "y": 440,
+        "wires": [
+            [
+                "map_reconnect_fn"
+            ]
+        ]
+    },
+    {
+        "id": "map_reconnect_fn",
+        "type": "function",
+        "z": "tab_env",
+        "name": "Redraw + centre",
+        "func": "// A browser opened the map: redraw the last marker and centre on it\nif (!msg.payload || msg.payload.action !== \"connected\") return null;\nconst m = flow.get(\"last_marker\");\nif (!m) return null;\nreturn [[\n    { payload: m, _sessionid: msg._sessionid },\n    { payload: { command: { lat: m.lat, lon: m.lon, zoom: 16 } }, _sessionid: msg._sessionid }\n]];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 440,
+        "wires": [
+            [
+                "sensor_map"
+            ]
+        ]
+    },
+    {
+        "id": "env_history_heading",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Sensor history heading",
+        "order": 6,
+        "width": 16,
+        "height": 1,
+        "format": "<div style=\"box-sizing:border-box;width:100%;padding:6px 12px 0;color:#e8eef5;font-family:inherit;\">\n  <div style=\"font-size:19px;font-weight:650;\">Sensor history</div>\n  <div style=\"display:flex;justify-content:space-between;align-items:center;margin-top:8px;color:#aab8c5;font-size:13px;font-weight:600;letter-spacing:.3px;\">\n    <span>TEMPERATURE · 24 H</span><span style=\"color:#38bdf8;\">LIVE</span>\n  </div>\n</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": false,
+        "templateScope": "local",
+        "className": "telemetry-history-heading",
+        "x": 670,
+        "y": 570,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_history_note",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_grp",
+        "name": "Sensor history note",
+        "order": 8,
+        "width": 16,
+        "height": 1,
+        "format": "<div style=\"padding:0 12px 6px;color:#8fa1b2;font-size:13px;\">Live readings from the onboard BME688 · last 24 hours</div>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "resendOnRefresh": false,
+        "templateScope": "local",
+        "className": "telemetry-history-note",
+        "x": 670,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "env_location_status",
+        "type": "ui_template",
+        "z": "tab_env",
+        "group": "iaq_map_grp",
+        "name": "Location source",
+        "order": 1,
+        "width": 16,
+        "height": 1,
+        "format": "<div style=\"box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:4px 2px;color:#aab8c5;font-size:15px;\">\n  <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#38bdf8\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/></svg>\n  <span>{{msg.payload ? msg.payload.source + ' location' : 'Waiting for GPS / cell location'}}</span>\n  <span ng-if=\"msg.payload && msg.payload.coordinates\" style=\"margin-left:auto;color:#8296a8;\">{{msg.payload.coordinates}}</span>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "telemetry-location-status",
+        "x": 660,
+        "y": 800,
+        "wires": [
+            []
+        ]
     }
-  },
-  {
-    "id": "iaq_dash_tab",
-    "type": "ui_tab",
-    "name": "Environment Monitor",
-    "icon": "dashboard",
-    "order": 1,
-    "disabled": false,
-    "hidden": false
-  },
-  {
-    "id": "iaq_grp",
-    "type": "ui_group",
-    "name": "Thingy:91 X - Environment",
-    "tab": "iaq_dash_tab",
-    "order": 1,
-    "disp": true,
-    "width": "12",
-    "collapse": false,
-    "className": ""
-  },
-  {
-    "id": "iaq_map_grp",
-    "type": "ui_group",
-    "name": "Location",
-    "tab": "iaq_dash_tab",
-    "order": 2,
-    "disp": true,
-    "width": "14",
-    "collapse": false,
-    "className": ""
-  },
-  {
-    "id": "tab_env",
-    "type": "tab",
-    "label": "Onboard Environment",
-    "disabled": false,
-    "info": "Thingy:91 X onboard BME688 measurements and location."
-  },
-  {
-    "id": "env_in",
-    "type": "mqtt in",
-    "z": "tab_env",
-    "name": "Thingy:91 X onboard environment",
-    "topic": "sensors/+/env",
-    "qos": "1",
-    "datatype": "json",
-    "broker": "broker",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 150,
-    "y": 160,
-    "wires": [
-      [
-        "env_fn",
-        "env_watchdog",
-        "env_debug"
-      ]
-    ]
-  },
-  {
-    "id": "env_fn",
-    "type": "function",
-    "z": "tab_env",
-    "name": "BME688 readings and location",
-    "func": "const p = msg.payload;\nif (!p || typeof p !== \"object\") {\n    node.warn(\"Invalid environment payload\");\n    return null;\n}\n\nconst device = (msg.topic || \"\").split(\"/\")[1] || \"thingy91x\";\nconst now = new Date();\nconst when = now.toLocaleString(\"en-GB\", { timeZone: \"Europe/Warsaw\" });\nconst temperature = Number(p.temperature);\nconst pressure = Number(p.pressure);\nconst humidity = Number(p.humidity);\nconst gasResistance = Number(p.gas_resistance);\n\nif (p.status !== \"ok\" || ![temperature, pressure, humidity, gasResistance].every(Number.isFinite)) {\n    const reason = p.status && p.status !== \"ok\" ? p.status : \"invalid sensor values\";\n    node.status({ fill: \"red\", shape: \"ring\", text: reason });\n    return [null, null, null, null, { payload: `BME688 status: ${reason}` }, null];\n}\n\nconst lat = Number(p.lat);\nconst lon = Number(p.lon);\nconst sources = { manual: \"Manual\", wifi: \"Wi-Fi\", gnss: \"GPS\", cell: \"Cell towers\" };\nif (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {\n    flow.set(\"loc_\" + device, {\n        lat,\n        lon,\n        acc: Number(p.acc) || null,\n        time: when,\n        src: sources[p.loc] || \"GPS\"\n    });\n}\n\nconst loc = flow.get(\"loc_\" + device);\nconst marker = loc ? { payload: {\n    name: device,\n    lat: loc.lat,\n    lon: loc.lon,\n    accuracy: loc.acc || undefined,\n    icon: \"fa-cloud\",\n    iconColor: \"blue\",\n    label: `${device}: ${temperature.toFixed(1)} C`,\n    temperature: `${temperature.toFixed(2)} C`,\n    pressure: `${pressure.toFixed(2)} kPa`,\n    humidity: `${humidity.toFixed(1)} %`,\n    gas_resistance: `${gasResistance.toFixed(0)} ohm`,\n    status: \"OK\",\n    location: loc.src,\n    last_fix: loc.time,\n    fix_age: p.fix_age\n} } : null;\n\nif (marker) flow.set(\"last_marker\", marker.payload);\nconst mapMsgs = marker ? [\n    marker,\n    { payload: { command: { lat: loc.lat, lon: loc.lon, zoom: 16 } } }\n] : null;\n\nnode.status({ fill: \"green\", shape: \"dot\", text: `${temperature.toFixed(1)} C / ${humidity.toFixed(0)} %` });\nreturn [\n    { payload: temperature, topic: \"Temperature\" },\n    { payload: pressure, topic: \"Pressure\" },\n    { payload: humidity, topic: \"Humidity\" },\n    { payload: gasResistance, topic: \"Gas resistance\" },\n    { payload: `Updated ${when}` },\n    mapMsgs\n];",
-    "outputs": 6,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 400,
-    "y": 160,
-    "wires": [
-      [
-        "env_temperature",
-        "env_temperature_chart"
-      ],
-      [
-        "env_pressure",
-        "env_pressure_chart"
-      ],
-      [
-        "env_humidity",
-        "env_humidity_chart"
-      ],
-      [
-        "env_gas_resistance"
-      ],
-      [
-        "env_status"
-      ],
-      [
-        "sensor_map"
-      ]
-    ],
-    "outputLabels": [
-      "Temperature",
-      "Pressure",
-      "Humidity",
-      "Gas resistance",
-      "Status",
-      "Map marker"
-    ]
-  },
-  {
-    "id": "env_status",
-    "type": "ui_text",
-    "z": "tab_env",
-    "group": "iaq_grp",
-    "order": 1,
-    "width": "12",
-    "height": "1",
-    "name": "Last update",
-    "label": "Last update",
-    "format": "{{msg.payload}}",
-    "layout": "row-spread",
-    "className": "",
-    "style": false,
-    "font": "",
-    "fontSize": "",
-    "color": "#eeeeee",
-    "x": 650,
-    "y": 380,
-    "wires": []
-  },
-  {
-    "id": "env_temperature",
-    "type": "ui_template",
-    "z": "tab_env",
-    "group": "iaq_grp",
-    "name": "Temperature",
-    "order": 2,
-    "width": "3",
-    "height": "3",
-    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Temperature</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:1}}</div><div style=\"font-size:18px;opacity:0.7\">C</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 660,
-    "y": 150,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_pressure",
-    "type": "ui_template",
-    "z": "tab_env",
-    "group": "iaq_grp",
-    "name": "Pressure",
-    "order": 3,
-    "width": "3",
-    "height": "3",
-    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Pressure</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:2}}</div><div style=\"font-size:18px;opacity:0.7\">kPa</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 660,
-    "y": 195,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_humidity",
-    "type": "ui_template",
-    "z": "tab_env",
-    "group": "iaq_grp",
-    "name": "Humidity",
-    "order": 4,
-    "width": "3",
-    "height": "3",
-    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Humidity</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:1}}</div><div style=\"font-size:18px;opacity:0.7\">%</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 660,
-    "y": 240,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_gas_resistance",
-    "type": "ui_template",
-    "z": "tab_env",
-    "group": "iaq_grp",
-    "name": "Gas resistance",
-    "order": 5,
-    "width": "3",
-    "height": "3",
-    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Gas resistance</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:0}}</div><div style=\"font-size:18px;opacity:0.7\">ohm</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 660,
-    "y": 285,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_temperature_chart",
-    "type": "ui_chart",
-    "z": "tab_env",
-    "name": "Temperature history",
-    "group": "iaq_grp",
-    "order": 6,
-    "width": "4",
-    "height": "6",
-    "label": "Temperature C (last 24 h)",
-    "chartType": "line",
-    "legend": "false",
-    "xformat": "HH:mm",
-    "interpolate": "linear",
-    "nodata": "Waiting for data...",
-    "dot": false,
-    "ymin": "",
-    "ymax": "",
-    "removeOlder": "24",
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#1f77b4",
-      "#aec7e8",
-      "#ff7f0e",
-      "#2ca02c",
-      "#98df8a",
-      "#d62728",
-      "#ff9896",
-      "#9467bd",
-      "#c5b0d5"
-    ],
-    "outputs": 1,
-    "useDifferentColor": false,
-    "className": "",
-    "x": 670,
-    "y": 620,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_pressure_chart",
-    "type": "ui_chart",
-    "z": "tab_env",
-    "name": "Pressure history",
-    "group": "iaq_grp",
-    "order": 7,
-    "width": "4",
-    "height": "6",
-    "label": "Pressure kPa (last 24 h)",
-    "chartType": "line",
-    "legend": "false",
-    "xformat": "HH:mm",
-    "interpolate": "linear",
-    "nodata": "Waiting for data...",
-    "dot": false,
-    "ymin": "",
-    "ymax": "",
-    "removeOlder": "24",
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#1f77b4",
-      "#aec7e8",
-      "#ff7f0e",
-      "#2ca02c",
-      "#98df8a",
-      "#d62728",
-      "#ff9896",
-      "#9467bd",
-      "#c5b0d5"
-    ],
-    "outputs": 1,
-    "useDifferentColor": false,
-    "className": "",
-    "x": 670,
-    "y": 650,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_humidity_chart",
-    "type": "ui_chart",
-    "z": "tab_env",
-    "name": "Humidity history",
-    "group": "iaq_grp",
-    "order": 8,
-    "width": "4",
-    "height": "6",
-    "label": "Humidity % (last 24 h)",
-    "chartType": "line",
-    "legend": "false",
-    "xformat": "HH:mm",
-    "interpolate": "linear",
-    "nodata": "Waiting for data...",
-    "dot": false,
-    "ymin": "0",
-    "ymax": "100",
-    "removeOlder": "24",
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#ff7f0e",
-      "#aec7e8",
-      "#1f77b4",
-      "#2ca02c",
-      "#98df8a",
-      "#d62728",
-      "#ff9896",
-      "#9467bd",
-      "#c5b0d5"
-    ],
-    "outputs": 1,
-    "useDifferentColor": false,
-    "className": "",
-    "x": 670,
-    "y": 680,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "env_watchdog",
-    "type": "trigger",
-    "z": "tab_env",
-    "name": "No environment data for 10 min",
-    "op1": "",
-    "op2": "offline",
-    "op1type": "nul",
-    "op2type": "str",
-    "duration": "10",
-    "extend": true,
-    "overrideDelay": false,
-    "units": "min",
-    "reset": "",
-    "bytopic": "topic",
-    "topic": "topic",
-    "outputs": 1,
-    "x": 400,
-    "y": 300,
-    "wires": [
-      [
-        "env_offline_fn"
-      ]
-    ]
-  },
-  {
-    "id": "env_offline_fn",
-    "type": "function",
-    "z": "tab_env",
-    "name": "Environment offline status",
-    "func": "if (msg.payload !== \"offline\") return null;\nmsg.payload = \"No BME688 data received for 10 minutes\";\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 620,
-    "y": 300,
-    "wires": [
-      [
-        "env_status"
-      ]
-    ]
-  },
-  {
-    "id": "env_debug",
-    "type": "debug",
-    "z": "tab_env",
-    "name": "Raw environment data",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 390,
-    "y": 360,
-    "wires": []
-  },
-  {
-    "id": "sensor_map",
-    "type": "worldmap",
-    "z": "tab_env",
-    "name": "Thingy:91 X location",
-    "lat": "52.198671",
-    "lon": "21.047436",
-    "zoom": "12",
-    "layer": "EsriS",
-    "cluster": "",
-    "maxage": "",
-    "usermenu": "show",
-    "layers": "show",
-    "panit": "true",
-    "panlock": "false",
-    "zoomlock": "false",
-    "hiderightclick": "false",
-    "coords": "none",
-    "showgrid": "false",
-    "showruler": "false",
-    "allowFileDrop": "false",
-    "path": "/worldmap",
-    "overlist": "DR,CO,RA,DN",
-    "maplist": "OSMG,OSMC,EsriC,EsriS,UKOS",
-    "mapname": "",
-    "mapurl": "",
-    "mapopt": "",
-    "mapwms": false,
-    "x": 600,
-    "y": 300,
-    "wires": []
-  },
-  {
-    "id": "env_map_ui",
-    "type": "ui_template",
-    "z": "tab_env",
-    "group": "iaq_map_grp",
-    "name": "Environment map",
-    "order": 1,
-    "width": "14",
-    "height": "13",
-    "format": "<iframe src=\"/worldmap\" style=\"width:100%;height:100%;border:0\"></iframe>",
-    "storeOutMessages": true,
-    "fwdInMessages": true,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 680,
-    "y": 260,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "map_events",
-    "type": "worldmap in",
-    "z": "tab_env",
-    "name": "Map opened",
-    "path": "/worldmap",
-    "events": "connect",
-    "x": 140,
-    "y": 440,
-    "wires": [
-      [
-        "map_reconnect_fn"
-      ]
-    ]
-  },
-  {
-    "id": "map_reconnect_fn",
-    "type": "function",
-    "z": "tab_env",
-    "name": "Redraw + centre",
-    "func": "// A browser opened the map: redraw the last marker and centre on it\nif (!msg.payload || msg.payload.action !== \"connected\") return null;\nconst m = flow.get(\"last_marker\");\nif (!m) return null;\nreturn [[\n    { payload: m, _sessionid: msg._sessionid },\n    { payload: { command: { lat: m.lat, lon: m.lon, zoom: 16 } }, _sessionid: msg._sessionid }\n]];",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 360,
-    "y": 440,
-    "wires": [
-      [
-        "sensor_map"
-      ]
-    ]
-  }
 ]
