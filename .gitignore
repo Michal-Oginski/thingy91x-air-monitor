@@ -85,6 +85,7 @@ Thumbs.db
 # Nordic credentials and certificates
 # -----------------------------------------------------------------------------
 *.pem
+!firmware/cert/mikrus_ca.pem
 *.key
 *.crt
 *.csr

@@ -77,7 +77,7 @@ LOG_MODULE_REGISTER(o2_main, LOG_LEVEL_INF);
 
 #define RECONNECT_DELAY_MS (30 * MSEC_PER_SEC)
 
-/* Let's Encrypt root (ISRG Root X1), embedded at build time */
+/* Mikrus MQTT broker CA, embedded at build time */
 static const char ca_cert[] = {
 #include "ca_cert.pem.inc"
 	0x00

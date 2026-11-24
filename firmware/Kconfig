@@ -50,11 +50,11 @@ config IAQ_ERROR_COUNT
 
 config O2_MQTT_HOST
 	string "MQTT broker hostname"
-	default "172-237-119-62.ip.linodeusercontent.com"
+	default "srv72.mikr.us"
 
 config O2_MQTT_PORT
 	int "MQTT broker port (TLS)"
-	default 8883
+	default 40022
 
 config O2_MQTT_USER
 	string "MQTT username"
