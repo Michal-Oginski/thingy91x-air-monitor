@@ -1,31 +1,11 @@
 /*
- * Thingy:91 X (nRF9151) - air monitor board overlay
- *
- * DEMO SENSOR: ams iAQ-Core on the STEMMA QT / Qwiic expansion port.
- *
- * The Thingy's I2C bus (i2c2: SCL P0.08, SDA P0.09, already 100 kHz) reaches
- * the expansion port through solder bridges SB8 (SCL) and SB9 (SDA) and the
- * TXS0102 level shifter (U24). SB8 and SB9 must be CLOSED.
- *
- * iAQ-Core pins:  2 = SCL, 3 = GND, 4 = SDA, 6 = VCC (3.3 V +/-0.1 V, 20 mA)
- *                 1, 5 = not connected
- * Address 0x5A, read-only. Pull-ups: provided by the TXS0102 (10k).
- *
- * For the O2 sensor build, see overlays/ads1115.overlay and o2.conf.
+ * Thingy:91 X (nRF9151) - onboard air monitor board overlay
  */
 
 /* nRF7002 Wi-Fi chip, used for Wi-Fi location (scan only) */
 #include <thingy91x_wifi.dtsi>
 
-&i2c2 {
-	iaq_core: iaq-core@5a {
-		compatible = "ams,iaq-core";
-		reg = <0x5a>;
-		status = "okay";
-	};
-};
-
-/* Built-in BME688: pressure and temperature (sent with each reading) */
+/* Built-in BME688: pressure, temperature, humidity and gas resistance */
 &bme680 {
 	status = "okay";
 };

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(o2_thingy91x)
+project(thingy91x_air_monitor)
 
 target_sources(app PRIVATE
   src/main.c
@@ -9,8 +9,6 @@ target_sources(app PRIVATE
   src/env.c
   src/manual_loc.c
 )
-target_sources_ifdef(CONFIG_APP_SENSOR_O2       app PRIVATE src/o2_sensor.c)
-target_sources_ifdef(CONFIG_APP_SENSOR_IAQ_CORE app PRIVATE src/iaq_core.c)
 
 # Embed the Mikrus MQTT broker CA as a C string
 set(gen_dir ${CMAKE_CURRENT_BINARY_DIR}/generated)

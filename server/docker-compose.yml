@@ -1,5 +1,5 @@
-# O2 monitor stack for Akamai Cloud (Linode)
-# Mosquitto (MQTT broker) + Node-RED (dashboard + O2 alarm)
+# Thingy:91 X environment monitor stack
+# Mosquitto (MQTT broker) + Node-RED (onboard sensor dashboard)
 
 services:
   mosquitto:
@@ -19,7 +19,7 @@ services:
     container_name: o2-nodered
     restart: unless-stopped
     environment:
-      - TZ=Africa/Johannesburg
+      - TZ=Europe/Warsaw
     ports:
       - "127.0.0.1:1880:1880" # editor + dashboard, reach it through an SSH tunnel
     volumes:

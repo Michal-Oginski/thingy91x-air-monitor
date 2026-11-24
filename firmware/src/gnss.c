@@ -135,12 +135,12 @@ int gnss_start(void)
 
 	location_config_defaults_set(&cfg, ARRAY_SIZE(methods), methods);
 
-	cfg.interval = CONFIG_O2_GNSS_INTERVAL_S; /* 0 = single request */
-	cfg.timeout = (CONFIG_O2_GNSS_TIMEOUT_S + 120) * MSEC_PER_SEC;
+	cfg.interval = CONFIG_APP_GNSS_INTERVAL_S; /* 0 = single request */
+	cfg.timeout = (CONFIG_APP_GNSS_TIMEOUT_S + 120) * MSEC_PER_SEC;
 
 	for (int i = 0; i < cfg.methods_count; i++) {
 		if (cfg.methods[i].method == LOCATION_METHOD_GNSS) {
-			cfg.methods[i].gnss.timeout = CONFIG_O2_GNSS_TIMEOUT_S * MSEC_PER_SEC;
+			cfg.methods[i].gnss.timeout = CONFIG_APP_GNSS_TIMEOUT_S * MSEC_PER_SEC;
 			cfg.methods[i].gnss.accuracy = LOCATION_ACCURACY_NORMAL;
 			/* Without PSM from the network, LTE leaves GNSS almost no radio
 			 * time; let GNSS take priority briefly when needed.
@@ -160,7 +160,7 @@ int gnss_start(void)
 			? (IS_ENABLED(CONFIG_APP_LOCATION_WIFI_FIRST) ? "Wi-Fi -> GNSS -> cell"
 								      : "GNSS -> Wi-Fi -> cell")
 			: "GNSS -> cell",
-		CONFIG_O2_GNSS_INTERVAL_S);
+		CONFIG_APP_GNSS_INTERVAL_S);
 	return 0;
 }
 

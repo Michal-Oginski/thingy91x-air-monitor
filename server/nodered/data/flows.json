@@ -1,18 +1,11 @@
 [
   {
-    "id": "tab_o2",
-    "type": "tab",
-    "label": "O2 Monitor",
-    "disabled": false,
-    "info": "Thingy:91 X O2 sensor: dashboard and low-O2 alarm"
-  },
-  {
     "id": "broker",
     "type": "mqtt-broker",
     "name": "Local Mosquitto",
     "broker": "mosquitto",
     "port": "1883",
-    "clientid": "nodered-o2",
+    "clientid": "nodered-env",
     "autoConnect": true,
     "usetls": false,
     "protocolVersion": "4",
@@ -132,31 +125,49 @@
     }
   },
   {
-    "id": "o2_dash_tab",
+    "id": "iaq_dash_tab",
     "type": "ui_tab",
-    "name": "O2 Monitor",
+    "name": "Environment Monitor",
     "icon": "dashboard",
-    "order": 2,
+    "order": 1,
     "disabled": false,
     "hidden": false
   },
   {
-    "id": "ui_grp",
+    "id": "iaq_grp",
     "type": "ui_group",
-    "name": "Thingy:91 X",
-    "tab": "o2_dash_tab",
+    "name": "Thingy:91 X - Environment",
+    "tab": "iaq_dash_tab",
     "order": 1,
     "disp": true,
-    "width": "8",
+    "width": "12",
     "collapse": false,
     "className": ""
   },
   {
-    "id": "mqtt_in",
+    "id": "iaq_map_grp",
+    "type": "ui_group",
+    "name": "Location",
+    "tab": "iaq_dash_tab",
+    "order": 2,
+    "disp": true,
+    "width": "14",
+    "collapse": false,
+    "className": ""
+  },
+  {
+    "id": "tab_env",
+    "type": "tab",
+    "label": "Onboard Environment",
+    "disabled": false,
+    "info": "Thingy:91 X onboard BME688 measurements and location."
+  },
+  {
+    "id": "env_in",
     "type": "mqtt in",
-    "z": "tab_o2",
-    "name": "Thingy:91 X O2",
-    "topic": "sensors/+/o2",
+    "z": "tab_env",
+    "name": "Thingy:91 X onboard environment",
+    "topic": "sensors/+/env",
     "qos": "1",
     "datatype": "json",
     "broker": "broker",
@@ -164,92 +175,185 @@
     "rap": true,
     "rh": 0,
     "inputs": 0,
-    "x": 130,
+    "x": 150,
     "y": 160,
     "wires": [
       [
-        "alarm_fn",
-        "watchdog",
-        "raw_debug",
-        "cal_fn"
+        "env_fn",
+        "env_watchdog",
+        "env_debug"
       ]
     ]
   },
   {
-    "id": "alarm_fn",
+    "id": "env_fn",
     "type": "function",
-    "z": "tab_o2",
-    "name": "O2 alarm logic",
-    "func": "// ===== O2 alarm settings \u2013 change these to your required values =====\nconst ALARM_LEVEL   = 19.5;            // % O2: alarm when BELOW this\nconst RECOVER_LEVEL = 20.0;            // % O2: clear alarm when back ABOVE this\nconst REMINDER_MS   = 15 * 60 * 1000;  // repeat email every 15 min while low\n// =====================================================================\n\nconst o2 = Number(msg.payload && msg.payload.o2);\nif (!Number.isFinite(o2)) {\n    node.warn(\"Message without a valid o2 value: \" + JSON.stringify(msg.payload));\n    return null;\n}\n\nconst device = (msg.topic || \"\").split(\"/\")[1] || \"unknown\";\n\n// ----- GPS location (optional fields lat / lon / acc in the payload) -----\n// The board may send location less often than O2, so remember the last fix.\nconst lat = Number(msg.payload.lat), lon = Number(msg.payload.lon);\nif (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {\n    flow.set(\"loc_\" + device, {\n        lat, lon,\n        acc: Number(msg.payload.acc) || null,\n        time: new Date().toLocaleString(\"en-ZA\", { timeZone: \"Africa/Johannesburg\" })\n    });\n}\nconst loc = flow.get(\"loc_\" + device);\nconst locText = loc\n    ? `\\nLocation: ${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}` +\n      (loc.acc ? ` (\u00b1${Math.round(loc.acc)} m)` : \"\") + ` \u2013 fix at ${loc.time}` +\n      `\\nMap: https://www.google.com/maps?q=${loc.lat},${loc.lon}`\n    : \"\\nLocation: no GPS fix yet\";\nconst now = Date.now();\nconst when = new Date().toLocaleString(\"en-ZA\", { timeZone: \"Africa/Johannesburg\" });\nlet inAlarm = context.get(\"inAlarm\") || false;\nlet lastNotify = context.get(\"lastNotify\") || 0;\nlet email = null;\n\nif (!inAlarm && o2 < ALARM_LEVEL) {\n    inAlarm = true;\n    lastNotify = now;\n    email = {\n        topic: `ALARM: Low O2 ${o2.toFixed(1)} % on ${device}`,\n        payload: `Oxygen level dropped to ${o2.toFixed(2)} % at ${when}.\\n` +\n                 `Alarm level: ${ALARM_LEVEL} %.` + locText\n    };\n} else if (inAlarm && o2 >= RECOVER_LEVEL) {\n    inAlarm = false;\n    email = {\n        topic: `Recovered: O2 back to ${o2.toFixed(1)} % on ${device}`,\n        payload: `Oxygen level recovered to ${o2.toFixed(2)} % at ${when}.` + locText\n    };\n} else if (inAlarm && now - lastNotify > REMINDER_MS) {\n    lastNotify = now;\n    email = {\n        topic: `REMINDER: O2 still low (${o2.toFixed(1)} %) on ${device}`,\n        payload: `Oxygen level is still ${o2.toFixed(2)} % at ${when}.` + locText\n    };\n}\n\ncontext.set(\"inAlarm\", inAlarm);\ncontext.set(\"lastNotify\", lastNotify);\n\nnode.status({ fill: inAlarm ? \"red\" : \"green\", shape: \"dot\", text: o2.toFixed(1) + \" %\" });\n\nconst value  = { payload: o2, topic: \"O2\", alarm: inAlarm };  // alarm flag colours the value red\nconst calNote = msg.payload.cal === false ? \" \u00b7 NOT CALIBRATED\"\n              : (msg.payload.cal_due ? \" \u00b7 calibration due\" : \"\");\nconst status = { payload: (inAlarm ? `LOW O2 ALARM (${o2.toFixed(1)} %)` : `OK (${o2.toFixed(1)} %)`) + calNote };\n\n// Map marker (only once we have a location)\nconst marker = loc ? { payload: {\n    name: device,\n    lat: loc.lat, lon: loc.lon,\n    accuracy: loc.acc || undefined,\n    icon: \"fa-tint\", iconColor: inAlarm ? \"red\" : \"green\",\n    label: `${device}: ${o2.toFixed(1)} % O2`,\n    O2: o2.toFixed(2) + \" %\",\n    status: inAlarm ? \"LOW O2 ALARM\" : \"OK\",\n    last_fix: loc.time\n} } : null;\n\n// Remember the marker (to redraw it when a browser opens the map) and\n// centre the map on it\nif (marker) flow.set(\"last_marker\", marker.payload);\nconst mapMsgs = marker\n    ? [marker, { payload: { command: { lat: loc.lat, lon: loc.lon, zoom: 16 } } }]\n    : null;\n\n// outputs: 1 = value display/chart, 2 = email, 3 = status text, 4 = map\nreturn [value, email, status, mapMsgs];",
-    "outputs": 4,
+    "z": "tab_env",
+    "name": "BME688 readings and location",
+    "func": "const p = msg.payload;\nif (!p || typeof p !== \"object\") {\n    node.warn(\"Invalid environment payload\");\n    return null;\n}\n\nconst device = (msg.topic || \"\").split(\"/\")[1] || \"thingy91x\";\nconst now = new Date();\nconst when = now.toLocaleString(\"en-GB\", { timeZone: \"Europe/Warsaw\" });\nconst temperature = Number(p.temperature);\nconst pressure = Number(p.pressure);\nconst humidity = Number(p.humidity);\nconst gasResistance = Number(p.gas_resistance);\n\nif (p.status !== \"ok\" || ![temperature, pressure, humidity, gasResistance].every(Number.isFinite)) {\n    const reason = p.status && p.status !== \"ok\" ? p.status : \"invalid sensor values\";\n    node.status({ fill: \"red\", shape: \"ring\", text: reason });\n    return [null, null, null, null, { payload: `BME688 status: ${reason}` }, null];\n}\n\nconst lat = Number(p.lat);\nconst lon = Number(p.lon);\nconst sources = { manual: \"Manual\", wifi: \"Wi-Fi\", gnss: \"GPS\", cell: \"Cell towers\" };\nif (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {\n    flow.set(\"loc_\" + device, {\n        lat,\n        lon,\n        acc: Number(p.acc) || null,\n        time: when,\n        src: sources[p.loc] || \"GPS\"\n    });\n}\n\nconst loc = flow.get(\"loc_\" + device);\nconst marker = loc ? { payload: {\n    name: device,\n    lat: loc.lat,\n    lon: loc.lon,\n    accuracy: loc.acc || undefined,\n    icon: \"fa-cloud\",\n    iconColor: \"blue\",\n    label: `${device}: ${temperature.toFixed(1)} C`,\n    temperature: `${temperature.toFixed(2)} C`,\n    pressure: `${pressure.toFixed(2)} kPa`,\n    humidity: `${humidity.toFixed(1)} %`,\n    gas_resistance: `${gasResistance.toFixed(0)} ohm`,\n    status: \"OK\",\n    location: loc.src,\n    last_fix: loc.time,\n    fix_age: p.fix_age\n} } : null;\n\nif (marker) flow.set(\"last_marker\", marker.payload);\nconst mapMsgs = marker ? [\n    marker,\n    { payload: { command: { lat: loc.lat, lon: loc.lon, zoom: 16 } } }\n] : null;\n\nnode.status({ fill: \"green\", shape: \"dot\", text: `${temperature.toFixed(1)} C / ${humidity.toFixed(0)} %` });\nreturn [\n    { payload: temperature, topic: \"Temperature\" },\n    { payload: pressure, topic: \"Pressure\" },\n    { payload: humidity, topic: \"Humidity\" },\n    { payload: gasResistance, topic: \"Gas resistance\" },\n    { payload: `Updated ${when}` },\n    mapMsgs\n];",
+    "outputs": 6,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 360,
+    "x": 400,
     "y": 160,
     "wires": [
       [
-        "o2_value",
-        "chart"
+        "env_temperature",
+        "env_temperature_chart"
       ],
       [
-        "email"
+        "env_pressure",
+        "env_pressure_chart"
       ],
       [
-        "status"
+        "env_humidity",
+        "env_humidity_chart"
+      ],
+      [
+        "env_gas_resistance"
+      ],
+      [
+        "env_status"
       ],
       [
         "sensor_map"
       ]
     ],
     "outputLabels": [
-      "O2 value",
-      "email",
-      "status text",
-      "map marker"
+      "Temperature",
+      "Pressure",
+      "Humidity",
+      "Gas resistance",
+      "Status",
+      "Map marker"
     ]
   },
   {
-    "id": "o2_value",
-    "type": "ui_template",
-    "z": "tab_o2",
-    "group": "ui_grp",
-    "name": "O2 value",
+    "id": "env_status",
+    "type": "ui_text",
+    "z": "tab_env",
+    "group": "iaq_grp",
     "order": 1,
-    "width": "8",
+    "width": "12",
+    "height": "1",
+    "name": "Last update",
+    "label": "Last update",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "style": false,
+    "font": "",
+    "fontSize": "",
+    "color": "#eeeeee",
+    "x": 650,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "env_temperature",
+    "type": "ui_template",
+    "z": "tab_env",
+    "group": "iaq_grp",
+    "name": "Temperature",
+    "order": 2,
+    "width": "3",
     "height": "3",
-    "format": "<div style=\"text-align:center;padding-top:8px\">\n  <div style=\"font-size:16px;opacity:0.7\">Oxygen</div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"font-size:64px;font-weight:bold;line-height:1.1\" ng-style=\"{color: msg.alarm ? '#ef5350' : '#42a5f5'}\">{{msg.payload | number:1}} %</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"font-size:20px;opacity:0.6\">Waiting for data...</div>\n</div>",
+    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Temperature</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:1}}</div><div style=\"font-size:18px;opacity:0.7\">C</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
     "storeOutMessages": true,
     "fwdInMessages": false,
     "resendOnRefresh": true,
     "templateScope": "local",
     "className": "",
-    "x": 590,
-    "y": 100,
+    "x": 660,
+    "y": 150,
     "wires": [
       []
     ]
   },
   {
-    "id": "chart",
+    "id": "env_pressure",
+    "type": "ui_template",
+    "z": "tab_env",
+    "group": "iaq_grp",
+    "name": "Pressure",
+    "order": 3,
+    "width": "3",
+    "height": "3",
+    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Pressure</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:2}}</div><div style=\"font-size:18px;opacity:0.7\">kPa</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
+    "storeOutMessages": true,
+    "fwdInMessages": false,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 660,
+    "y": 195,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "env_humidity",
+    "type": "ui_template",
+    "z": "tab_env",
+    "group": "iaq_grp",
+    "name": "Humidity",
+    "order": 4,
+    "width": "3",
+    "height": "3",
+    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Humidity</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:1}}</div><div style=\"font-size:18px;opacity:0.7\">%</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
+    "storeOutMessages": true,
+    "fwdInMessages": false,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 660,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "env_gas_resistance",
+    "type": "ui_template",
+    "z": "tab_env",
+    "group": "iaq_grp",
+    "name": "Gas resistance",
+    "order": 5,
+    "width": "3",
+    "height": "3",
+    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\"><div style=\"font-size:18px;opacity:0.7\">Gas resistance</div><div ng-if=\"msg.payload !== undefined\" style=\"font-size:42px;font-weight:bold;line-height:1.1\">{{msg.payload | number:0}}</div><div style=\"font-size:18px;opacity:0.7\">ohm</div><div ng-if=\"msg.payload === undefined\" style=\"font-size:16px;opacity:0.6\">Waiting for data...</div></div>",
+    "storeOutMessages": true,
+    "fwdInMessages": false,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 660,
+    "y": 285,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "env_temperature_chart",
     "type": "ui_chart",
-    "z": "tab_o2",
-    "name": "O2 history",
-    "group": "ui_grp",
-    "order": 2,
-    "width": "8",
-    "height": "5",
-    "label": "O2 % (last 24 h)",
+    "z": "tab_env",
+    "name": "Temperature history",
+    "group": "iaq_grp",
+    "order": 6,
+    "width": "4",
+    "height": "6",
+    "label": "Temperature C (last 24 h)",
     "chartType": "line",
     "legend": "false",
     "xformat": "HH:mm",
     "interpolate": "linear",
     "nodata": "Waiting for data...",
     "dot": false,
-    "ymin": "15",
-    "ymax": "25",
+    "ymin": "",
+    "ymax": "",
     "removeOlder": "24",
     "removeOlderPoints": "",
     "removeOlderUnit": "3600",
@@ -270,56 +374,105 @@
     "outputs": 1,
     "useDifferentColor": false,
     "className": "",
-    "x": 600,
-    "y": 140,
+    "x": 670,
+    "y": 620,
     "wires": [
       []
     ]
   },
   {
-    "id": "status",
-    "type": "ui_text",
-    "z": "tab_o2",
-    "group": "ui_grp",
-    "order": 3,
-    "width": "8",
-    "height": "1",
-    "name": "Status",
-    "label": "Status",
-    "format": "{{msg.payload}}",
-    "layout": "row-spread",
+    "id": "env_pressure_chart",
+    "type": "ui_chart",
+    "z": "tab_env",
+    "name": "Pressure history",
+    "group": "iaq_grp",
+    "order": 7,
+    "width": "4",
+    "height": "6",
+    "label": "Pressure kPa (last 24 h)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm",
+    "interpolate": "linear",
+    "nodata": "Waiting for data...",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "24",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#aec7e8",
+      "#ff7f0e",
+      "#2ca02c",
+      "#98df8a",
+      "#d62728",
+      "#ff9896",
+      "#9467bd",
+      "#c5b0d5"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
     "className": "",
-    "style": false,
-    "font": "",
-    "fontSize": "",
-    "color": "#eeeeee",
-    "x": 590,
-    "y": 220,
-    "wires": []
+    "x": 670,
+    "y": 650,
+    "wires": [
+      []
+    ]
   },
   {
-    "id": "email",
-    "type": "e-mail",
-    "z": "tab_o2",
-    "d": true,
-    "server": "smtp.gmail.com",
-    "port": "465",
-    "authtype": "BASIC",
-    "saslformat": true,
-    "token": "oauth2Response.access_token",
-    "secure": true,
-    "tls": true,
-    "name": "you@example.com",
-    "dname": "Send alarm email",
-    "x": 630,
-    "y": 180,
-    "wires": []
+    "id": "env_humidity_chart",
+    "type": "ui_chart",
+    "z": "tab_env",
+    "name": "Humidity history",
+    "group": "iaq_grp",
+    "order": 8,
+    "width": "4",
+    "height": "6",
+    "label": "Humidity % (last 24 h)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm",
+    "interpolate": "linear",
+    "nodata": "Waiting for data...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "100",
+    "removeOlder": "24",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#ff7f0e",
+      "#aec7e8",
+      "#1f77b4",
+      "#2ca02c",
+      "#98df8a",
+      "#d62728",
+      "#ff9896",
+      "#9467bd",
+      "#c5b0d5"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "className": "",
+    "x": 670,
+    "y": 680,
+    "wires": [
+      []
+    ]
   },
   {
-    "id": "watchdog",
+    "id": "env_watchdog",
     "type": "trigger",
-    "z": "tab_o2",
-    "name": "No data for 10 min",
+    "z": "tab_env",
+    "name": "No environment data for 10 min",
     "op1": "",
     "op2": "offline",
     "op1type": "nul",
@@ -329,45 +482,62 @@
     "overrideDelay": false,
     "units": "min",
     "reset": "",
-    "bytopic": "all",
+    "bytopic": "topic",
     "topic": "topic",
     "outputs": 1,
-    "x": 370,
-    "y": 260,
+    "x": 400,
+    "y": 300,
     "wires": [
       [
-        "offline_fn"
+        "env_offline_fn"
       ]
     ]
   },
   {
-    "id": "offline_fn",
+    "id": "env_offline_fn",
     "type": "function",
-    "z": "tab_o2",
-    "name": "Offline message",
-    "func": "const when = new Date().toLocaleString(\"en-ZA\", { timeZone: \"Africa/Johannesburg\" });\nmsg.topic = \"WARNING: O2 sensor offline\";\nmsg.payload = `No data received from the Thingy:91 X for 10 minutes (checked at ${when}).\\n` +\n              `Check power, LTE coverage and the board.`;\nreturn msg;",
+    "z": "tab_env",
+    "name": "Environment offline status",
+    "func": "if (msg.payload !== \"offline\") return null;\nmsg.payload = \"No BME688 data received for 10 minutes\";\nreturn msg;",
     "outputs": 1,
     "timeout": 0,
     "noerr": 0,
     "initialize": "",
     "finalize": "",
     "libs": [],
-    "x": 580,
-    "y": 260,
+    "x": 620,
+    "y": 300,
     "wires": [
       [
-        "email"
+        "env_status"
       ]
     ]
   },
   {
+    "id": "env_debug",
+    "type": "debug",
+    "z": "tab_env",
+    "name": "Raw environment data",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 390,
+    "y": 360,
+    "wires": []
+  },
+  {
     "id": "sensor_map",
     "type": "worldmap",
-    "z": "tab_o2",
-    "name": "Sensor map",
-    "lat": "-26.2041",
-    "lon": "28.0473",
-    "zoom": "15",
+    "z": "tab_env",
+    "name": "Thingy:91 X location",
+    "lat": "52.198671",
+    "lon": "21.047436",
+    "zoom": "12",
     "layer": "EsriS",
     "cluster": "",
     "maxage": "",
@@ -393,401 +563,11 @@
     "wires": []
   },
   {
-    "id": "map_ui",
+    "id": "env_map_ui",
     "type": "ui_template",
-    "z": "tab_o2",
-    "group": "ui_grp",
-    "name": "Map on dashboard",
-    "order": 4,
-    "width": "8",
-    "height": "7",
-    "format": "<iframe src=\"/worldmap\" style=\"width:100%;height:100%;border:0\"></iframe>",
-    "storeOutMessages": true,
-    "fwdInMessages": true,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 620,
-    "y": 340,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "o2_cal_grp",
-    "type": "ui_group",
-    "name": "Calibration",
-    "tab": "o2_dash_tab",
-    "order": 2,
-    "disp": true,
-    "width": "8",
-    "collapse": false,
-    "className": ""
-  },
-  {
-    "id": "mqtt_status",
-    "type": "mqtt in",
-    "z": "tab_o2",
-    "name": "Board status / calibration",
-    "topic": "sensors/+/status",
-    "qos": "1",
-    "datatype": "json",
-    "broker": "broker",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 160,
-    "y": 460,
-    "wires": [
-      [
-        "cal_fn"
-      ]
-    ]
-  },
-  {
-    "id": "cal_fn",
-    "type": "function",
-    "z": "tab_o2",
-    "name": "Calibration info",
-    "func": "// Combines calibration info, command results and live readings for the panel\nconst p = msg.payload || {};\nconst parts = (msg.topic || \"\").split(\"/\");\nconst dev = parts[1];\nif (dev) flow.set(\"cal_device\", dev);\n\nlet s = flow.get(\"cal_panel_\" + dev) || {};\nconst tz = { timeZone: \"Africa/Johannesburg\" };\nconst fmt = t => (t > 0 ? new Date(t * 1000).toLocaleString(\"en-ZA\", tz) : \"date unknown\");\n\nif (parts[2] === \"status\") {\n    if (p.type === \"cal_info\") {\n        s.info = {\n            due: p.due,\n            interval: p.interval_d,\n            span: p.has_span\n                ? `${(p.span_uv / 1000).toFixed(3)} mV = ${p.span_pct.toFixed(2)} % O2`\n                : `not calibrated (datasheet ${(p.span_uv / 1000).toFixed(3)} mV in air)`,\n            span_date: p.has_span ? fmt(p.span_time) : \"never\",\n            age: p.has_span && p.age_d >= 0 ? `${p.age_d} days` : \"\",\n            zero: p.has_zero ? `${(p.zero_uv / 1000).toFixed(3)} mV (calibrated)`\n                             : `${(p.zero_uv / 1000).toFixed(3)} mV (datasheet)`,\n            zero_date: p.has_zero ? fmt(p.zero_time) : \"\",\n            health: p.health >= 0 ? p.health : null,\n            health_warn: p.health_warn,\n            comp: (p.p_comp ? (p.p_cal > 0 ? `pressure (reference ${p.p_cal.toFixed(1)} kPa)`\n                                            : \"pressure: no reference yet\")\n                            : \"pressure off\")\n                  + (p.t_coeff_ppm ? `, temperature ${(p.t_coeff_ppm / 10000).toFixed(2)} %/\u00b0C` : \"\")\n        };\n    } else if (p.type === \"cal_result\") {\n        s.busy = p.ok && /started/i.test(p.msg || \"\");\n        s.result = {\n            ok: p.ok,\n            msg: p.msg,\n            time: new Date().toLocaleTimeString(\"en-ZA\", tz)\n        };\n    }\n} else if (typeof p.mv === \"number\") {\n    s.live = { mv: p.mv, p: p.p, t: p.t };\n}\n\nflow.set(\"cal_panel_\" + dev, s);\nmsg.payload = s;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 390,
-    "y": 460,
-    "wires": [
-      [
-        "cal_panel"
-      ]
-    ]
-  },
-  {
-    "id": "cal_panel",
-    "type": "ui_template",
-    "z": "tab_o2",
-    "group": "o2_cal_grp",
-    "name": "Calibration panel",
-    "order": 1,
-    "width": "8",
-    "height": "11",
-    "format": "<style>\n.calp{font-size:14px;line-height:1.45}\n.calp table{width:100%;border-collapse:collapse}\n.calp td{padding:2px 4px;vertical-align:top}\n.calp td:first-child{opacity:.7;white-space:nowrap;width:1%}\n.calp .warn{color:#ef5350;font-weight:bold}\n.calp .ok{color:#2e7d32;font-weight:bold}\n.calp .btns button{margin:6px 6px 0 0}\n.calp input{width:90px}\n.calp .res{margin-top:10px;padding:6px 8px;border-radius:4px;background:rgba(127,127,127,.12)}\n.calp .sub{opacity:.7;font-size:12px}\n</style>\n<div class=\"calp\">\n  <table>\n    <tr><td>Status</td><td>\n      <span ng-if=\"!msg.payload.info\">Waiting for the board...</span>\n      <span ng-if=\"msg.payload.info\" ng-class=\"msg.payload.info.due ? 'warn' : 'ok'\">{{msg.payload.info.due ? 'CALIBRATION DUE' : 'Calibrated'}}</span>\n      <span class=\"sub\" ng-if=\"msg.payload.info && msg.payload.info.interval > 0\">(every {{msg.payload.info.interval}} days)</span>\n    </td></tr>\n    <tr><td>Span</td><td>{{msg.payload.info.span}}</td></tr>\n    <tr><td>Last calibration</td><td>{{msg.payload.info.span_date}} <span class=\"sub\" ng-if=\"msg.payload.info.age\">({{msg.payload.info.age}} ago)</span></td></tr>\n    <tr><td>Zero</td><td>{{msg.payload.info.zero}} <span class=\"sub\">{{msg.payload.info.zero_date}}</span></td></tr>\n    <tr><td>Sensor health</td><td>\n      <span ng-if=\"msg.payload.info.health === null\">unknown until calibrated</span>\n      <span ng-if=\"msg.payload.info.health !== null\" ng-class=\"msg.payload.info.health < msg.payload.info.health_warn ? 'warn' : 'ok'\">\n        {{msg.payload.info.health}} % of a new sensor<span ng-if=\"msg.payload.info.health < msg.payload.info.health_warn\"> - replace soon</span></span>\n    </td></tr>\n    <tr><td>Compensation</td><td>{{msg.payload.info.comp}}</td></tr>\n    <tr><td>Live sensor</td><td>\n      <span ng-if=\"msg.payload.live\">{{msg.payload.live.mv | number:3}} mV\n        <span ng-if=\"msg.payload.live.p\"> \u00b7 {{msg.payload.live.p | number:1}} kPa \u00b7 {{msg.payload.live.t | number:1}} &deg;C</span></span>\n    </td></tr>\n  </table>\n\n  <div class=\"btns\">\n    <md-button class=\"md-raised\" ng-disabled=\"msg.payload.busy\" ng-click=\"cal('cal_air')\">Fresh air (20.9 %)</md-button>\n    <md-button class=\"md-raised\" ng-disabled=\"msg.payload.busy\" ng-click=\"cal('cal_zero')\">Zero (N&#8322;)</md-button>\n  </div>\n  <div class=\"btns\">\n    Span gas <input type=\"number\" step=\"0.01\" min=\"5\" max=\"100\" ng-model=\"f.pct\"> % O2\n    <md-button class=\"md-raised\" ng-disabled=\"msg.payload.busy\" ng-click=\"cal('cal_span')\">Span calibrate</md-button>\n  </div>\n  <div class=\"btns\">\n    <md-button ng-click=\"f.manual = !f.manual\">{{f.manual ? 'Hide' : 'Enter values'}} manually</md-button>\n    <md-button ng-disabled=\"msg.payload.busy\" ng-click=\"cal('cal_reset')\">Reset to datasheet</md-button>\n    <md-button ng-click=\"cal('cal_info')\">Refresh</md-button>\n  </div>\n  <div ng-if=\"f.manual\" class=\"btns\">\n    Zero <input type=\"number\" ng-model=\"f.zero_uv\"> uV,\n    span <input type=\"number\" ng-model=\"f.span_uv\"> uV at\n    <input type=\"number\" step=\"0.01\" ng-model=\"f.set_pct\"> % O2\n    <md-button class=\"md-raised\" ng-click=\"cal('cal_set')\">Save</md-button>\n    <div class=\"sub\">For values from a calibration certificate. Pressure compensation is off for manual values.</div>\n  </div>\n\n  <div class=\"res\" ng-if=\"msg.payload.result\">\n    <b ng-class=\"msg.payload.result.ok ? 'ok' : 'warn'\">{{msg.payload.result.ok ? '&#10004;' : '&#10006;'}}</b>\n    {{msg.payload.result.msg}} <span class=\"sub\">({{msg.payload.result.time}})</span>\n  </div>\n</div>\n<script>\n(function(scope) {\n  scope.f = { pct: 20.9, zero_uv: 0, span_uv: 10000, set_pct: 20.9, manual: false };\n  var texts = {\n    cal_air:  \"AIR CALIBRATION (20.9 % O2)\\n\\nThe sensor must be in clean, fresh outdoor air, warmed up and stable for at least 15 minutes. Nobody breathing near it.\\n\\nThe board measures for about 20 seconds. Start?\",\n    cal_span: \"SPAN GAS CALIBRATION at {pct} % O2\\n\\nThe certified span gas must be flowing over the sensor and the reading stable.\\n\\nStart?\",\n    cal_zero: \"ZERO CALIBRATION (0 % O2)\\n\\nPure nitrogen must be flowing over the sensor until the reading is stable (usually several minutes).\\n\\nThe board measures for about 30 seconds. Start?\",\n    cal_reset: \"RESET CALIBRATION\\n\\nAll stored calibration is deleted and the datasheet values are used again.\\n\\nContinue?\",\n    cal_set: \"SAVE MANUAL VALUES\\n\\nZero {zero} uV, span {span} uV = {pct} % O2.\\n\\nContinue?\"\n  };\n  scope.cal = function(cmd) {\n    var p = { cmd: cmd };\n    if (cmd === 'cal_span') {\n      p.pct = parseFloat(scope.f.pct);\n      if (!(p.pct >= 5 && p.pct <= 100)) { alert('Enter the span gas concentration (5 - 100 % O2)'); return; }\n    }\n    if (cmd === 'cal_set') {\n      p.zero_uv = parseInt(scope.f.zero_uv, 10);\n      p.span_uv = parseInt(scope.f.span_uv, 10);\n      p.pct = parseFloat(scope.f.set_pct);\n      if (isNaN(p.zero_uv) || isNaN(p.span_uv) || isNaN(p.pct)) { alert('Fill in all three values'); return; }\n    }\n    var t = texts[cmd];\n    if (t && !confirm(t.replace('{pct}', p.pct).replace('{zero}', p.zero_uv).replace('{span}', p.span_uv))) { return; }\n    scope.send({ payload: p });\n  };\n})(scope);\n</script>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 600,
-    "y": 460,
-    "wires": [
-      [
-        "cmd_fn"
-      ]
-    ]
-  },
-  {
-    "id": "cmd_fn",
-    "type": "function",
-    "z": "tab_o2",
-    "name": "Build command",
-    "func": "// Send the panel's command to the board, and show \"waiting\" in the panel\nconst dev = flow.get(\"cal_device\") || \"thingy91x\";\nconst tz = { timeZone: \"Africa/Johannesburg\" };\nconst out = { topic: `sensors/${dev}/cmd`, payload: msg.payload };\n\nlet s = flow.get(\"cal_panel_\" + dev) || {};\ns.result = {\n    ok: true,\n    msg: `Command \"${msg.payload.cmd}\" sent - waiting for the board to answer...`,\n    time: new Date().toLocaleTimeString(\"en-ZA\", tz)\n};\nflow.set(\"cal_panel_\" + dev, s);\n\nreturn [out, { payload: s }];",
-    "outputs": 2,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 600,
-    "y": 520,
-    "wires": [
-      [
-        "cmd_out"
-      ],
-      [
-        "cal_panel"
-      ]
-    ]
-  },
-  {
-    "id": "cmd_out",
-    "type": "mqtt out",
-    "z": "tab_o2",
-    "name": "Command to board",
-    "topic": "",
-    "qos": "1",
-    "retain": "false",
-    "respTopic": "",
-    "contentType": "",
-    "userProps": "",
-    "correl": "",
-    "expiry": "",
-    "broker": "broker",
-    "x": 820,
-    "y": 520,
-    "wires": []
-  },
-  {
-    "id": "iaq_dash_tab",
-    "type": "ui_tab",
-    "name": "Air Quality",
-    "icon": "dashboard",
-    "order": 1,
-    "disabled": false,
-    "hidden": false
-  },
-  {
-    "id": "iaq_grp",
-    "type": "ui_group",
-    "name": "Thingy:91 X - Air quality (demo)",
-    "tab": "iaq_dash_tab",
-    "order": 1,
-    "disp": true,
-    "width": "12",
-    "collapse": false,
-    "className": ""
-  },
-  {
-    "id": "iaq_map_grp",
-    "type": "ui_group",
-    "name": "Location",
-    "tab": "iaq_dash_tab",
-    "order": 2,
-    "disp": true,
-    "width": "14",
-    "collapse": false,
-    "className": ""
-  },
-  {
-    "id": "tab_iaq",
-    "type": "tab",
-    "label": "Air Quality (iAQ-Core)",
-    "disabled": false,
-    "info": "iAQ-Core demo: CO2-eq / TVOC-eq dashboard and high-level alarm"
-  },
-  {
-    "id": "iaq_in",
-    "type": "mqtt in",
-    "z": "tab_iaq",
-    "name": "Thingy:91 X air quality",
-    "topic": "sensors/+/iaq",
-    "qos": "1",
-    "datatype": "json",
-    "broker": "broker",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 150,
-    "y": 160,
-    "wires": [
-      [
-        "iaq_fn",
-        "iaq_watchdog",
-        "iaq_debug"
-      ]
-    ]
-  },
-  {
-    "id": "iaq_fn",
-    "type": "function",
-    "z": "tab_iaq",
-    "name": "Air quality alarm logic",
-    "func": "// ===== Air quality alarm levels \u2013 keep in sync with the firmware (Kconfig) =====\nconst CO2_ALARM  = 1400, CO2_CLEAR  = 1200;  // ppm CO2-equivalent\nconst TVOC_ALARM = 450,  TVOC_CLEAR = 350;   // ppb TVOC-equivalent\nconst REMINDER_MS = 15 * 60 * 1000;          // repeat email every 15 min while high\n// ================================================================================\n\nconst p = msg.payload || {};\nconst device = (msg.topic || \"\").split(\"/\")[1] || \"unknown\";\nconst tz = { timeZone: \"Africa/Johannesburg\" };\nconst when = new Date().toLocaleString(\"en-ZA\", tz);\n\n// ----- GPS location (shared with the O2 flow) -----\nconst lat = Number(p.lat), lon = Number(p.lon);\nif (Number.isFinite(lat) && Number.isFinite(lon) && !(lat === 0 && lon === 0)) {\n    flow.set(\"loc_\" + device, { lat, lon, acc: Number(p.acc) || null, time: when,\n        src: ({ manual: \"Manual\", wifi: \"Wi-Fi\", gnss: \"GPS\", cell: \"Cell towers\" })[p.loc] || \"GPS\" });\n}\nconst loc = flow.get(\"loc_\" + device);\nconst locText = loc\n    ? `\\nLocation: ${loc.lat.toFixed(5)}, ${loc.lon.toFixed(5)}\\nMap: https://www.google.com/maps?q=${loc.lat},${loc.lon}`\n    : \"\\nLocation: no GPS fix yet\";\n\n// ----- Sensor not delivering valid data yet -----\nif (p.status !== \"ok\") {\n    const text = {\n        warmup: \"Warming up \u2013 first valid reading about 5 min after power-on\",\n        busy:   \"Sensor busy \u2013 waiting for the next reading\",\n        error:  \"SENSOR ERROR \u2013 the iAQ-Core reports constant errors (check or replace)\",\n        no_sensor: \"SENSOR NOT DETECTED \u2013 board is online, but the iAQ-Core does not answer on I2C\"\n    }[p.status] || (\"Sensor status: \" + p.status);\n    node.status({ fill: p.status === \"error\" ? \"red\" : \"blue\", shape: \"ring\", text: p.status });\n\n    const marker = loc ? { payload: {\n        name: device, lat: loc.lat, lon: loc.lon, accuracy: loc.acc || undefined,\n        icon: \"fa-exclamation-triangle\", iconColor: \"orange\",\n        label: `${device}: SENSOR NOT DETECTED`,\n        status: \"SENSOR NOT DETECTED\", location: loc.src || \"GPS\", last_fix: loc.time\n    } } : null;\n    if (marker) flow.set(\"last_marker\", marker.payload);\n    const mapMsgs = marker\n        ? [marker, { payload: { command: { lat: loc.lat, lon: loc.lon, zoom: 16 } } }]\n        : null;\n\n    return [null, null, null, { payload: text }, mapMsgs];\n}\n\nconst co2 = Number(p.co2), tvoc = Number(p.tvoc);\nlet inAlarm = context.get(\"inAlarm\") || false;\nlet lastNotify = context.get(\"lastNotify\") || 0;\nconst now = Date.now();\nlet email = null;\nconst values = `CO2-eq ${co2} ppm (alarm ${CO2_ALARM}), TVOC-eq ${tvoc} ppb (alarm ${TVOC_ALARM})`;\n\nif (!inAlarm && (co2 >= CO2_ALARM || tvoc >= TVOC_ALARM)) {\n    inAlarm = true; lastNotify = now;\n    email = { topic: `ALARM: Poor air quality on ${device}`, payload: `${values} at ${when}.` + locText };\n} else if (inAlarm && co2 < CO2_CLEAR && tvoc < TVOC_CLEAR) {\n    inAlarm = false;\n    email = { topic: `Recovered: Air quality normal on ${device}`, payload: `${values} at ${when}.` + locText };\n} else if (inAlarm && now - lastNotify > REMINDER_MS) {\n    lastNotify = now;\n    email = { topic: `REMINDER: Air quality still poor on ${device}`, payload: `${values} at ${when}.` + locText };\n}\ncontext.set(\"inAlarm\", inAlarm);\ncontext.set(\"lastNotify\", lastNotify);\n\n// Each value turns red on its own when it is the one causing the alarm\nconst co2High  = co2  >= CO2_ALARM  || (inAlarm && co2  >= CO2_CLEAR);\nconst tvocHigh = tvoc >= TVOC_ALARM || (inAlarm && tvoc >= TVOC_CLEAR);\n\nnode.status({ fill: inAlarm ? \"red\" : \"green\", shape: \"dot\", text: `${co2} ppm / ${tvoc} ppb` });\n\nconst status = { payload: inAlarm ? `POOR AIR QUALITY (${co2} ppm, ${tvoc} ppb)`\n                                  : `OK (${co2} ppm, ${tvoc} ppb)` };\n\nconst marker = loc ? { payload: {\n    name: device, lat: loc.lat, lon: loc.lon, accuracy: loc.acc || undefined,\n    icon: \"fa-cloud\", iconColor: inAlarm ? \"red\" : \"green\",\n    label: `${device}: ${co2} ppm CO2-eq \u00b7 ${tvoc} ppb TVOC`,\n    CO2_eq: co2 + \" ppm\", TVOC_eq: tvoc + \" ppb\",\n    status: inAlarm ? \"POOR AIR QUALITY\" : \"OK\", location: loc.src || \"GPS\", last_fix: loc.time\n} } : null;\n\n// Remember the marker (to redraw it when a browser opens the map) and\n// centre the map on it\nif (marker) flow.set(\"last_marker\", marker.payload);\nconst mapMsgs = marker\n    ? [marker, { payload: { command: { lat: loc.lat, lon: loc.lon, zoom: 16 } } }]\n    : null;\n\n// outputs: 1 = CO2 value/chart, 2 = TVOC value/chart, 3 = email, 4 = status, 5 = map\nreturn [\n    { payload: co2,  topic: \"CO2-eq\",  alarm: co2High },\n    { payload: tvoc, topic: \"TVOC-eq\", alarm: tvocHigh },\n    email, status, mapMsgs\n];",
-    "outputs": 5,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 400,
-    "y": 160,
-    "wires": [
-      [
-        "iaq_co2_val",
-        "iaq_co2_chart"
-      ],
-      [
-        "iaq_tvoc_val",
-        "iaq_tvoc_chart"
-      ],
-      [
-        "email"
-      ],
-      [
-        "iaq_status"
-      ],
-      [
-        "sensor_map"
-      ]
-    ],
-    "outputLabels": [
-      "CO2-eq",
-      "TVOC-eq",
-      "email",
-      "status text",
-      "map marker"
-    ]
-  },
-  {
-    "id": "iaq_co2_val",
-    "type": "ui_template",
-    "z": "tab_iaq",
-    "group": "iaq_grp",
-    "name": "CO2-eq value",
-    "order": 2,
-    "width": "4",
-    "height": "6",
-    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\">\n  <div style=\"font-size:20px;opacity:0.7\">CO2 equivalent</div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"font-size:64px;font-weight:bold;line-height:1.1\" ng-style=\"{color: msg.alarm ? '#ef5350' : '#42a5f5'}\">{{msg.payload | number:0}}</div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"font-size:26px;font-weight:bold\" ng-style=\"{color: msg.alarm ? '#ef5350' : '#42a5f5'}\">ppm</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"font-size:18px;opacity:0.6\">Waiting for data...</div>\n</div>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 660,
-    "y": 60,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "iaq_tvoc_val",
-    "type": "ui_template",
-    "z": "tab_iaq",
-    "group": "iaq_grp",
-    "name": "TVOC-eq value",
-    "order": 4,
-    "width": "4",
-    "height": "6",
-    "format": "<div style=\"height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center\">\n  <div style=\"font-size:20px;opacity:0.7\">TVOC equivalent</div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"font-size:64px;font-weight:bold;line-height:1.1\" ng-style=\"{color: msg.alarm ? '#ef5350' : '#42a5f5'}\">{{msg.payload | number:0}}</div>\n  <div ng-if=\"msg.payload !== undefined\" style=\"font-size:26px;font-weight:bold\" ng-style=\"{color: msg.alarm ? '#ef5350' : '#42a5f5'}\">ppb</div>\n  <div ng-if=\"msg.payload === undefined\" style=\"font-size:18px;opacity:0.6\">Waiting for data...</div>\n</div>",
-    "storeOutMessages": true,
-    "fwdInMessages": false,
-    "resendOnRefresh": true,
-    "templateScope": "local",
-    "className": "",
-    "x": 660,
-    "y": 100,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "iaq_status",
-    "type": "ui_text",
-    "z": "tab_iaq",
-    "group": "iaq_grp",
-    "order": 1,
-    "width": "12",
-    "height": "1",
-    "name": "Status",
-    "label": "Status",
-    "format": "{{msg.payload}}",
-    "layout": "row-spread",
-    "className": "",
-    "style": false,
-    "font": "",
-    "fontSize": "",
-    "color": "#eeeeee",
-    "x": 650,
-    "y": 140,
-    "wires": []
-  },
-  {
-    "id": "iaq_co2_chart",
-    "type": "ui_chart",
-    "z": "tab_iaq",
-    "name": "CO2-eq history",
-    "group": "iaq_grp",
-    "order": 3,
-    "width": "8",
-    "height": "6",
-    "label": "CO2-eq ppm (last 24 h)",
-    "chartType": "line",
-    "legend": "false",
-    "xformat": "HH:mm",
-    "interpolate": "linear",
-    "nodata": "Waiting for data...",
-    "dot": false,
-    "ymin": "400",
-    "ymax": "2000",
-    "removeOlder": "24",
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#1f77b4",
-      "#aec7e8",
-      "#ff7f0e",
-      "#2ca02c",
-      "#98df8a",
-      "#d62728",
-      "#ff9896",
-      "#9467bd",
-      "#c5b0d5"
-    ],
-    "outputs": 1,
-    "useDifferentColor": false,
-    "className": "",
-    "x": 670,
-    "y": 180,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "iaq_tvoc_chart",
-    "type": "ui_chart",
-    "z": "tab_iaq",
-    "name": "TVOC-eq history",
-    "group": "iaq_grp",
-    "order": 5,
-    "width": "8",
-    "height": "6",
-    "label": "TVOC-eq ppb (last 24 h)",
-    "chartType": "line",
-    "legend": "false",
-    "xformat": "HH:mm",
-    "interpolate": "linear",
-    "nodata": "Waiting for data...",
-    "dot": false,
-    "ymin": "100",
-    "ymax": "700",
-    "removeOlder": "24",
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#ff7f0e",
-      "#aec7e8",
-      "#1f77b4",
-      "#2ca02c",
-      "#98df8a",
-      "#d62728",
-      "#ff9896",
-      "#9467bd",
-      "#c5b0d5"
-    ],
-    "outputs": 1,
-    "useDifferentColor": false,
-    "className": "",
-    "x": 670,
-    "y": 220,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "iaq_map_ui",
-    "type": "ui_template",
-    "z": "tab_iaq",
+    "z": "tab_env",
     "group": "iaq_map_grp",
-    "name": "Map on dashboard",
+    "name": "Environment map",
     "order": 1,
     "width": "14",
     "height": "13",
@@ -804,71 +584,9 @@
     ]
   },
   {
-    "id": "iaq_watchdog",
-    "type": "trigger",
-    "z": "tab_iaq",
-    "name": "No data for 10 min",
-    "op1": "",
-    "op2": "offline",
-    "op1type": "nul",
-    "op2type": "str",
-    "duration": "10",
-    "extend": true,
-    "overrideDelay": false,
-    "units": "min",
-    "reset": "",
-    "bytopic": "all",
-    "topic": "topic",
-    "outputs": 1,
-    "x": 400,
-    "y": 300,
-    "wires": [
-      [
-        "iaq_offline_fn"
-      ]
-    ]
-  },
-  {
-    "id": "iaq_offline_fn",
-    "type": "function",
-    "z": "tab_iaq",
-    "name": "Offline message",
-    "func": "const when = new Date().toLocaleString(\"en-ZA\", { timeZone: \"Africa/Johannesburg\" });\nmsg.topic = \"WARNING: Air quality sensor offline\";\nmsg.payload = `No air quality data from the Thingy:91 X for 10 minutes (checked at ${when}).\\n` +\n              `Check power, LTE coverage and the board.`;\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "libs": [],
-    "x": 620,
-    "y": 300,
-    "wires": [
-      [
-        "email"
-      ]
-    ]
-  },
-  {
-    "id": "iaq_debug",
-    "type": "debug",
-    "z": "tab_iaq",
-    "name": "Raw air quality data",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 390,
-    "y": 360,
-    "wires": []
-  },
-  {
     "id": "map_events",
     "type": "worldmap in",
-    "z": "tab_iaq",
+    "z": "tab_env",
     "name": "Map opened",
     "path": "/worldmap",
     "events": "connect",
@@ -883,7 +601,7 @@
   {
     "id": "map_reconnect_fn",
     "type": "function",
-    "z": "tab_iaq",
+    "z": "tab_env",
     "name": "Redraw + centre",
     "func": "// A browser opened the map: redraw the last marker and centre on it\nif (!msg.payload || msg.payload.action !== \"connected\") return null;\nconst m = flow.get(\"last_marker\");\nif (!m) return null;\nreturn [[\n    { payload: m, _sessionid: msg._sessionid },\n    { payload: { command: { lat: m.lat, lon: m.lon, zoom: 16 } }, _sessionid: msg._sessionid }\n]];",
     "outputs": 1,
@@ -899,22 +617,5 @@
         "sensor_map"
       ]
     ]
-  },
-  {
-    "id": "raw_debug",
-    "type": "debug",
-    "z": "tab_o2",
-    "name": "Raw data",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 340,
-    "y": 380,
-    "wires": []
   }
 ]

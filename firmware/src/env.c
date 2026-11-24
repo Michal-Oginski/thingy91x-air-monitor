@@ -19,9 +19,9 @@ int env_init(void)
 	return 0;
 }
 
-int env_read(float *pressure_kpa, float *temp_c)
+int env_read(struct env_reading *reading)
 {
-	struct sensor_value p, t;
+	struct sensor_value pressure, temperature, humidity, gas;
 	int err;
 
 	if (!bme || !device_is_ready(bme)) {
@@ -33,10 +33,28 @@ int env_read(float *pressure_kpa, float *temp_c)
 		return err;
 	}
 
-	sensor_channel_get(bme, SENSOR_CHAN_PRESS, &p);       /* kPa */
-	sensor_channel_get(bme, SENSOR_CHAN_AMBIENT_TEMP, &t); /* degC */
+	err = sensor_channel_get(bme, SENSOR_CHAN_PRESS, &pressure);
+	if (err) {
+		LOG_ERR("Failed to read BME688 pressure: %d", err);
+		return err;
+	}
 
-	*pressure_kpa = (float)sensor_value_to_double(&p);
-	*temp_c = (float)sensor_value_to_double(&t);
+	err = sensor_channel_get(bme, SENSOR_CHAN_AMBIENT_TEMP, &temperature);
+	if (err) {
+		LOG_ERR("Failed to read BME688 temperature: %d", err);
+		return err;
+	}
+
+	reading->pressure_kpa = (float)sensor_value_to_double(&pressure);
+	reading->temperature_c = (float)sensor_value_to_double(&temperature);
+	reading->humidity_pct = 0.0f;
+	reading->gas_resistance_ohm = 0.0f;
+
+	if (sensor_channel_get(bme, SENSOR_CHAN_HUMIDITY, &humidity) == 0) {
+		reading->humidity_pct = (float)sensor_value_to_double(&humidity);
+	}
+	if (sensor_channel_get(bme, SENSOR_CHAN_GAS_RES, &gas) == 0) {
+		reading->gas_resistance_ohm = (float)sensor_value_to_double(&gas);
+	}
 	return 0;
 }

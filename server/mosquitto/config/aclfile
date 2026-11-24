@@ -1,9 +1,7 @@
-# The board publishes its own data/status and receives calibration commands
+# The board publishes onboard environment measurements
 user thingy91x
-topic write sensors/thingy91x/#
-topic read sensors/thingy91x/cmd
+topic write sensors/thingy91x/env
 
-# Node-RED reads all sensor data and sends calibration commands
+# Node-RED reads environment measurements
 user nodered
-topic read sensors/#
-topic write sensors/+/cmd
+topic read sensors/+/env
